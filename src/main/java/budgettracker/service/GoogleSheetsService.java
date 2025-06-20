@@ -21,24 +21,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class GoogleSheetsService {
 
-    // Inject spreadsheet ID from application.properties
     @Value("${google.sheets.spreadsheetId}")
     private String spreadsheetId;
 
-    // Inject path to credentials file from application.properties
     @Value("${google.sheets.credentialsPath}")
     private String credentialsPath;
 
     private Sheets sheetsService;
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String APPLICATION_NAME = "BudgetTrackerApp";
-    private static final String SHEET_NAME = "Sheet1"; // Assuming your data is on 'Sheet1'
+    private static final String SHEET_NAME = "Sheet1";
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
@@ -77,16 +73,13 @@ public class GoogleSheetsService {
         // Map sheet rows to Transaction objects
         if (values != null && !values.isEmpty()) {
             for (List<Object> row : values) {
-                // Filter out null rows (equivalent to first filter(Objects::nonNull))
                 if (row == null) {
                     continue;
                 }
-
                 try {
-                    // Ensure row has enough elements to avoid IndexOutOfBoundsException
                     if (row.size() < 4) {
                         System.err.println("Skipping malformed row: " + row);
-                        continue; // Skip this row if it's incomplete
+                        continue;
                     }
                     LocalDate date = LocalDate.parse(row.get(0).toString(), DATE_FORMATTER);
                     String description = row.get(1).toString();
@@ -95,7 +88,6 @@ public class GoogleSheetsService {
                     transactions.add(new Transaction(date, description, amount, type));
                 } catch (Exception e) {
                     System.err.println("Error parsing row: " + row + ". Error: " + e.getMessage());
-                    // In a traditional loop, we just skip the problematic row
                     throw e;
                 }
             }
@@ -113,7 +105,7 @@ public class GoogleSheetsService {
 
         AppendValuesResponse result = sheetsService.spreadsheets().values()
                 .append(spreadsheetId, range, body)
-                .setValueInputOption("RAW") // "RAW" means exact values, "USER_ENTERED" means treated as if typed by user
+                .setValueInputOption("RAW")
                 .execute();
         System.out.println("Transaction added. Updates: " + result.getUpdates().getUpdatedRows() + " rows.");
     }

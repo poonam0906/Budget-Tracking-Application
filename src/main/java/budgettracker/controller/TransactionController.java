@@ -29,7 +29,6 @@ public class TransactionController {
             List<Transaction> transactions = googleSheetsService.getAllTransactions();
             return ResponseEntity.ok(transactions);
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null); // Or a custom error response
         }
@@ -45,7 +44,6 @@ public class TransactionController {
             googleSheetsService.addTransaction(transaction);
             return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null); // Or a custom error response
         }
@@ -74,11 +72,8 @@ public class TransactionController {
             summary.put("totalExpense", totalExpense);
             summary.put("balance", balance);
 
-            // Optional: Group by category if you add a category field to Transaction
-            // For now, simple income/expense summary
             return ResponseEntity.ok(summary);
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
         }
